@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ title }}</title>
+    <meta name="description" content="Login with GitHub">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="https://s3-eu-west-1.amazonaws.com/octochat.dev/website-assets/favicon-16x16.png">
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="https://unpkg.com/@primer/css/dist/primer.css" />
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body class="m-6">
+
+    {% macro is_from(senderId) %}
+      {% if user.login == senderId %}
+        to
+      {% else %}
+        from
+      {% endif %}
+    {% endmacro %}
+
+    <div class="container-lg clearfix">
+
+      <div class="col-8 float-left">
+
+        <h1>
+          {% if user %}
+
+          👋 Welcome, <a href="https://github.com/{{ user.login }}">@{{ user.login }}</a>
+
+          {% else %}
+
+          😺 {{ title }}
+
+          {% endif %}
+        </h1>
+
+      </div>
+
+      <div class="float-right">
+
+        {% if user %}
+
+        <form method="get" action="/logout">
+          <button type="submit" class="btn btn-large btn-primary" role="button">Logout</button>
+        </form>
+
+        {% else %}
+
+        <form method="get" action="/login">
+          <button type="submit" class="btn btn-large btn-primary" role="button">Login with GitHub</button>
+        </form>
+
+        {% endif %}
+      </div>
+    </div>
+
+    {% if user %}
+
+    <div class="container-lg clearfix mt-6">
+
+      <div class="Box">
+        <div class="Box-header">
+            Messages with
+            <details class="dropdown details-reset details-overlay d-inline-block">
+              <summary class="btn" aria-haspopup="true">
+                {{ selectedFollower.login if selectedFollower else "Choose from followers..." }}
+                <div class="dropdown-caret"></div>
+              </summary>
+              <ul class="dropdown-menu dropdown-menu-se">
+                {% for follower in followers %}
+                <li><a class="dropdown-item" href="/messages/{{follower.id}}">{{ follower.login }}</a></li>
+                {% else %}
+                <div class="dropdown-header">No followers :-(</div>
+                {% endfor %}
+              </ul>
+            </details>
+          </div>
+        {% if conversation %}
+        <div class="Box-body">
+
+          {% for message in messages %}
+
+          <div class="message {{ is_from(message.from) }}">
+            {{ message.message }}
+          </div>
+
+          {% endfor %}
+        </div>
+        <div class="Box-footer">
+          <form method="post" action="/messages" class="d-table width-full">
+            <div class="d-table-cell col-12 pr-2">
+              <input
+                class="form-control width-full"
+                name="message"
+                type="text"
+                placeholder="Type a message..."
+                aria-label="Message"
+                required
+              />
+            </div>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    {% endif %}
+
+  </body>
+</html>
